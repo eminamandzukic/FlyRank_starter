@@ -1,0 +1,11 @@
+{
+  "validation_design": "time-aware",
+  "validation_period": "2026-04 to 2026-05",
+  "roc_auc": 0.588,
+  "precision_at_20": 0.55,
+  "precision_at_50": 0.54,
+  "precision_at_100": 0.55,
+  "precision_at_500": 0.504,
+  "base_rate": 0.576,
+  "queue_rows": 86282
+}
