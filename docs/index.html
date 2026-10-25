@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Can Historical Search Signals Predict Next-Month Content Decline?</title>
+
+  <style>
+    :root {
+        --text: #243447;
+        --muted: #6f7f91;
+        --border: #dbe5ef;
+        --background: #f8fbff;
+        --soft-background: #eef5fb;
+        --accent: #4f7cac;
+        --accent-light: #dceaf7;
+        --heading: #18324a;
+    }
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--background);
+      color: var(--text);
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        sans-serif;
+      line-height: 1.7;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 70px 28px 90px;
+    }
+
+    header {
+      margin-bottom: 50px;
+    }
+
+    .eyebrow {
+      margin-bottom: 12px;
+      color: #4f7cac;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0 0 16px;
+      color: #173b5e;
+      font-size: clamp(2.3rem, 6vw, 4.3rem);
+      line-height: 1.08;
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      max-width: 700px;
+      margin: 0 0 22px;
+      color: #5f7184;
+      font-size: 1.3rem;
+      line-height: 1.5;
+    }
+
+    .author {
+      color: var(--heading);
+      font-weight: 600;
+    }
+
+    .meta {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    nav {
+        margin: 38px 0 55px;
+        padding: 24px;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        background: var(--soft-background);
+    }
+
+    nav strong {
+        display: block;
+        margin-bottom: 16px;
+        color: #2f6690;
+        font-size: 0.9rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    nav a {
+        display: inline-block;
+        margin: 5px 6px 5px 0;
+        padding: 8px 14px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        background: white;
+        color: var(--text);
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    nav a:hover {
+        border-color: var(--accent);
+        background: var(--accent);
+        color: white;
+        text-decoration: none;
+        transform: translateY(-1px);
+    }
+
+    section {
+      margin: 58px 0;
+    }
+
+    h2 {
+      margin: 0 0 22px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      color: #2f6690;
+      font-size: 1.7rem;
+      line-height: 1.25;
+    }
+
+    h3 {
+      margin-top: 32px;
+      color: #4f7cac;
+    }
+
+    p {
+      margin: 0 0 18px;
+    }
+
+    ul,
+    ol {
+      padding-left: 24px;
+    }
+
+    li {
+      margin-bottom: 10px;
+    }
+
+    .abstract {
+      padding: 28px 30px;
+      border-left: 4px solid var(--accent);
+      background: var(--accent-light);
+    }
+
+    .research-question {
+      margin: 28px 0;
+      padding: 24px 28px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--soft-background);
+      color: var(--heading);
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 30px 0;
+    }
+
+    .metric {
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      text-align: center;
+      background: #f9fcff;
+    }
+
+    .metric-value {
+      display: block;
+      color: var(--heading);
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+
+    .metric-label {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      margin: 28px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.94rem;
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    th:first-child,
+    td:first-child {
+      text-align: left;
+    }
+
+    th {
+      color: var(--heading);
+      background: var(--soft-background);
+      font-weight: 600;
+    }
+
+    figure {
+      margin: 38px 0;
+    }
+
+    figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    figcaption {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
+
+    .takeaway {
+      margin: 24px 0;
+      padding: 20px 24px;
+      border-radius: 10px;
+      background: #eef6fb;
+      border-left: 4px solid var(--accent)
+    }
+
+    .recommendation {
+      margin: 20px 0;
+      padding: 22px 24px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fbfdff;
+    }
+
+    .recommendation h3 {
+      margin: 0 0 10px;
+    }
+
+    code {
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: #f1f5f9;
+      font-size: 0.9em;
+    }
+
+    footer {
+      margin-top: 70px;
+      padding-top: 28px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 650px) {
+      .page {
+        padding: 40px 20px 60px;
+      }
+
+      .metric-grid {
+        grid-template-columns: 1fr;
+      }
+
+      nav a {
+        display: block;
+        margin: 7px 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="page">
+
+    <!-- =====================================================
+         TITLE
+    ====================================================== -->
+
+    <header>
+      <div class="eyebrow">FlyRank ML Internship Capstone</div>
+
+      <h1>
+        Can Historical Search Signals Predict Next-Month Content Decline?
+      </h1>
+
+      <p class="subtitle">
+        A proactive content review framework using time-aware validation
+        and approximately 78.8 million daily search-performance records.
+      </p>
+
+      <div class="author">Emina Mandzukic</div>
+
+      <div class="meta">
+        Machine Learning Research Project
+      </div>
+    </header>
+
+
+    <!-- =====================================================
+         NAVIGATION
+    ====================================================== -->
+
+    <nav>
+      <strong>Contents</strong>
+
+      <a href="#abstract">Abstract</a>
+      <a href="#introduction">Introduction</a>
+      <a href="#data">Data</a>
+      <a href="#methodology">Methodology</a>
+      <a href="#results">Results</a>
+      <a href="#limitations">Limitations</a>
+      <a href="#recommendations">Recommendations</a>
+      <a href="#reproducibility">Reproducibility</a>
+      <a href="#acknowledgments">Acknowledgments</a>
+    </nav>
+
+
+    <!-- =====================================================
+         ABSTRACT
+    ====================================================== -->
+
+    <section id="abstract">
+      <h2>Abstract</h2>
+
+      <div class="abstract">
+        <p>
+          This study investigates whether historical search-performance
+          signals can be used to identify currently visible content that is
+          more likely to experience a meaningful decline in the following
+          month.
+          The analysis uses the FlyRank internship warehouse, containing
+          approximately 78.8 million daily content-performance records
+          spanning late January 2025 through June 2026.
+          A transparent rule-based baseline was compared with Logistic
+          Regression and Random Forest using a time-aware validation design
+          and four search-performance features: impressions, clicks, average
+          position, and click-through rate.
+          Logistic Regression achieved the highest ROC-AUC at 0.588, but
+          the rule-based baseline performed better at the top of the review
+          queue, reaching Precision@100 of 0.70 compared with 0.55 for both
+          learned models.
+          The final framework therefore uses the rule-based ranking as the
+          primary mechanism for prioritizing content for human review, while
+          treating model scores as secondary decision-support signals rather
+          than automated recommendations.
+        </p>
+      </div>
+    </section>
+
+
+    <!-- =====================================================
+         1. INTRODUCTION
+    ====================================================== -->
+
+    <section id="introduction">
+      <h2>1. Introduction / Problem Statement</h2>
+
+      <p>
+        Search performance can change substantially over time. For teams
+        managing many existing content items, this creates a practical
+        problem: it is difficult to know which pages deserve attention
+        first.
+      </p>
+
+      <p>
+        Reviewing every page manually is inefficient. A useful system
+        therefore needs to reduce a large content inventory into a smaller
+        ranked queue that human reviewers can inspect.
+      </p>
+
+      <div class="research-question">
+        Can historical search-performance signals be used to identify
+        content that is more likely to experience a meaningful decline in
+        the following month?
+      </div>
+
+      <p>
+        The goal is to use this prediction to help determine which
+        already-visible content should be reviewed first for possible
+        refresh, protection, or continued monitoring.
+      </p>
+
+      <p>
+        The system is not intended to automatically rewrite or modify
+        content, explain why search rankings change, or establish that a
+        particular search metric causes future decline. Instead, it is
+        designed as a decision-support tool that helps prioritize human
+        review.
+      </p>
+
+      <p>
+        Because the operational goal is to identify a relatively small
+        number of high-priority items, performance is evaluated using both
+        ROC-AUC and top-of-queue metrics such as Precision@K.
+      </p>
+    </section>
+
+
+    <!-- =====================================================
+         2. DATA
+    ====================================================== -->
+
+    <section id="data">
+      <h2>2. Data</h2>
+
+      <p>
+        This project uses the FlyRank internship warehouse, build
+        <code>v20260703</code>. The primary source is the
+        <code>fact_content_daily_performance</code> table, which contains
+        daily search-performance measurements for pseudonymized clients and
+        content items.
+      </p>
+
+      <p>
+        The warehouse contains approximately 78.8 million daily performance
+        records spanning late January 2025 through June 2026. The
+        <code>dim_clients</code> table is also used to verify when historical
+        search data becomes available for each client.
+      </p>
+
+      <p>
+        The modeling design uses search-performance signals from one month
+        to predict whether the same content item experiences a meaningful
+        decline during the following month. Historical monthly pairs
+        beginning in February 2025 are used for model development, while the
+        April 2026 to May 2026 transition is reserved as the primary
+        time-aware validation period.
+      </p>
+
+      <p>
+        Only content items with at least 200 impressions during the feature
+        month are included. This threshold focuses the analysis on content
+        with meaningful current search visibility rather than extremely
+        low-volume items.
+      </p>
+
+      <p>
+        Clients without a full month of available historical search data are
+        excluded for the corresponding feature period.
+      </p>
+
+      <p>
+        GA4-based features are intentionally excluded from the final model
+        because analytics availability is incomplete across the warehouse.
+        Excluding them avoids treating unavailable measurements as genuine
+        zero engagement.
+      </p>
+
+      <p>
+        Client and content identifiers are used only for grouping and
+        joining records. They are not predictive features. No client names,
+        content URLs, or private search queries are included in this public
+        analysis.
+      </p>
+    </section>
+
+
+    <!-- =====================================================
+         3. METHODOLOGY
+    ====================================================== -->
+
+    <section id="methodology">
+      <h2>3. Methodology</h2>
+
+      <h3>Prediction target</h3>
+
+      <p>
+        The task is framed as a combined binary classification and ranking
+        problem. For every eligible content item, search-performance signals
+        from a feature month are used to estimate the risk of meaningful
+        decline in the subsequent month.
+      </p>
+
+      <p>
+        The binary target, <code>is_declining</code>, is equal to 1 when
+        average daily impressions during the outcome month fall below 80%
+        of average daily impressions during the feature month.
+      </p>
+
+      <p>
+        This label is a practical proxy for performance decline. It should
+        not be interpreted as proof that a page requires a refresh.
+      </p>
+
+      <h3>Features</h3>
+
+      <p>
+        Four historical search-performance features are used:
+      </p>
+
+      <ul>
+        <li>Monthly impressions</li>
+        <li>Monthly clicks</li>
+        <li>Average search position</li>
+        <li>Click-through rate (CTR)</li>
+      </ul>
+
+      <p>
+        Client identifiers, content identifiers, future outcome metrics, and
+        target-derived variables are excluded from the feature set.
+      </p>
+
+      <h3>Rule-based baseline</h3>
+
+      <p>
+        A transparent heuristic is used as the primary baseline. Eligible
+        content must have at least 200 feature-month impressions. Content
+        with an average search position worse than 10 is flagged for review,
+        and qualifying items are ranked in descending order of impression
+        volume.
+      </p>
+
+      <p>
+        This rule represents a simple operational idea: content that already
+        receives meaningful visibility but is not currently positioned in
+        the top 10 may deserve earlier human attention.
+      </p>
+
+      <h3>Machine-learning models</h3>
+
+      <p>
+        Two supervised models are evaluated against the heuristic:
+        Logistic Regression and Random Forest.
+      </p>
+
+      <p>
+        Logistic Regression provides a comparatively simple and
+        interpretable learned model. Random Forest is included to test
+        whether nonlinear relationships and feature interactions improve
+        predictive performance.
+      </p>
+
+      <h3>Validation design</h3>
+
+      <p>
+        The primary evaluation uses a time-aware split. Models are trained
+        only on historical month pairs preceding the validation horizon, and
+        April 2026 features are evaluated against outcomes observed in May
+        2026.
+      </p>
+
+      <p>
+        A random split was also examined as an audit, but it is not used as
+        the main reported evaluation because random mixing of observations
+        across time can produce overly optimistic estimates for a
+        forward-looking prediction problem.
+      </p>
+
+      <h3>Leakage controls</h3>
+
+      <p>
+        The feature set was audited to ensure that future outcome
+        information, the target variable, and client/content identifiers
+        were not provided to the models as predictors.
+      </p>
+    </section>
+
+
+    <!-- =====================================================
+         4. RESULTS
+    ====================================================== -->
+
+    <section id="results">
+      <h2>4. Results</h2>
+
+      <p>
+        All three approaches were evaluated on the same April 2026 to May
+        2026 time-aware validation split. The proportion of eligible
+        validation observations labeled as declining was 57.6%.
+      </p>
+
+      <div class="metric-grid">
+
+        <div class="metric">
+          <span class="metric-value">0.588</span>
+          <span class="metric-label">
+            Best ROC-AUC<br>Logistic Regression
+          </span>
+        </div>
+
+        <div class="metric">
+          <span class="metric-value">0.70</span>
+          <span class="metric-label">
+            Best Precision@100<br>Rule-based baseline
+          </span>
+        </div>
+
+        <div class="metric">
+          <span class="metric-value">57.6%</span>
+          <span class="metric-label">
+            Validation decline base rate
+          </span>
+        </div>
+
+      </div>
+
+      <p>
+        Logistic Regression achieved the highest overall ROC-AUC at 0.588,
+        compared with 0.554 for the rule-based baseline and 0.539 for Random
+        Forest.
+      </p>
+
+      <p>
+        However, ROC-AUC is not the only relevant metric for this task. The
+        intended use case is to prioritize a limited number of content items
+        for human review, making performance at the top of the ranked queue
+        particularly important.
+      </p>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>ROC-AUC</th>
+              <th>P@20</th>
+              <th>P@50</th>
+              <th>P@100</th>
+              <th>P@500</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>Rule-based baseline</td>
+              <td>0.554</td>
+              <td><strong>0.60</strong></td>
+              <td><strong>0.66</strong></td>
+              <td><strong>0.70</strong></td>
+              <td><strong>0.666</strong></td>
+            </tr>
+
+            <tr>
+              <td>Logistic Regression</td>
+              <td><strong>0.588</strong></td>
+              <td>0.55</td>
+              <td>0.54</td>
+              <td>0.55</td>
+              <td>0.504</td>
+            </tr>
+
+            <tr>
+              <td>Random Forest</td>
+              <td>0.539</td>
+              <td>0.40</td>
+              <td>0.52</td>
+              <td>0.55</td>
+              <td>0.584</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <figure>
+        <img
+          src="assets/precision_at_k_comparison.png"
+          alt="Line chart comparing Precision at K for the rule-based baseline, Logistic Regression, Random Forest, and the validation base rate."
+        >
+
+        <figcaption>
+          <strong>Figure 1.</strong>
+          Precision@K on the April 2026 to May 2026 time-aware validation
+          split. The rule-based baseline produces the strongest
+          top-of-queue precision across all evaluated K values.
+        </figcaption>
+      </figure>
+
+      <div class="takeaway">
+        <strong>Key takeaway:</strong>
+        the learned models contain some predictive signal, but they do not
+        improve the operational ranking task relative to the simple
+        heuristic. Although Logistic Regression achieves the highest
+        ROC-AUC, the rule-based baseline is more effective at identifying
+        declining items within the highest-priority review positions.
+      </div>
+    </section>
+
+
+    <!-- =====================================================
+         5. LIMITATIONS
+    ====================================================== -->
+
+    <section id="limitations">
+      <h2>5. Limitations &amp; Honest Framing</h2>
+
+      <p>
+        Several limitations should be considered when interpreting these
+        results.
+      </p>
+
+      <p>
+        First, <code>is_declining</code> is a proxy for review priority. A
+        decrease in average daily impressions does not necessarily mean that
+        a page requires a content refresh, and the target does not identify
+        the underlying reason for the decline.
+      </p>
+
+      <p>
+        Second, the final feature set intentionally contains only four
+        historical search-performance signals. Content quality, topical
+        change, seasonality, competitor activity, previous content updates,
+        and other external factors are not represented.
+      </p>
+
+      <p>
+        Third, the primary reported evaluation is based on one held-out
+        temporal transition from April 2026 to May 2026. Performance may
+        vary during other periods because the prevalence and characteristics
+        of decline can change over time.
+      </p>
+
+      <p>
+        The monthly modeling pipeline uses an inner join between feature and
+        outcome periods. A direct validation check found that all 362,172
+        content items observed in April 2026 were also present in May 2026,
+        so no April items were excluded because of this join during the
+        primary evaluation period.
+      </p>
+
+      <p>
+        Most importantly, this analysis is observational. The measured
+        relationships are predictive associations, not causal effects. The
+        results do not establish that any search metric causes future
+        decline, and they do not demonstrate that refreshing a highly ranked
+        page will improve future performance.
+      </p>
+
+      <p>
+        The output should therefore be interpreted only as decision support
+        for human review.
+      </p>
+    </section>
+
+
+    <!-- =====================================================
+         6. RANKED RECOMMENDATIONS
+    ====================================================== -->
+
+    <section id="recommendations">
+      <h2>6. Ranked Recommendations</h2>
+
+      <p>
+        The experimental results support retaining the transparent
+        rule-based heuristic as the primary mechanism for constructing the
+        review queue.
+      </p>
+
+      <div class="recommendation">
+
+        <h3>1. Review for refresh</h3>
+
+        <p>
+          Content with meaningful search visibility and an average search
+          position worse than 10 should be considered for
+          <code>review_for_refresh</code>.
+        </p>
+
+        <p>
+          Within this group, content should be ranked by descending
+          impression volume so that higher-visibility opportunities receive
+          attention first.
+        </p>
+
+        <p>
+          Reason code:
+          <code>visible_but_not_top10</code>.
+        </p>
+
+      </div>
+
+
+      <div class="recommendation">
+
+        <h3>2. Protect and monitor</h3>
+
+        <p>
+          Eligible content currently ranking within the top 10 should be
+          categorized as <code>protect_and_monitor</code>.
+        </p>
+
+        <p>
+          These items already demonstrate comparatively strong search
+          positioning and do not satisfy the primary review rule.
+        </p>
+
+        <p>
+          Reason code:
+          <code>strong_current_position</code>.
+        </p>
+
+      </div>
+
+
+      <div class="recommendation">
+
+        <h3>3. Keep learned-model scores secondary</h3>
+
+        <p>
+          Logistic Regression and Random Forest scores may be retained as
+          exploratory signals, but they should not determine the final queue
+          order under the current validation evidence.
+        </p>
+
+        <p>
+          The learned approaches did not outperform the heuristic at the top
+          of the validation queue, where review capacity is most limited.
+        </p>
+
+      </div>
+
+
+      <div class="recommendation">
+
+        <h3>4. Require human review</h3>
+
+        <p>
+          No ranked result should directly trigger automatic rewriting,
+          publishing, deletion, or modification of content.
+        </p>
+
+        <p>
+          The queue identifies candidates for investigation. The final
+          editorial decision should remain with a human reviewer who can
+          consider page context that is not represented by the model.
+        </p>
+
+      </div>
+    </section>
+
+
+    <!-- =====================================================
+         7. REPRODUCIBILITY
+    ====================================================== -->
+
+    <section id="reproducibility">
+      <h2>7. Reproducibility</h2>
+
+      <p>
+        The analysis code, notebook, methodology, validation results, and
+        supporting artifacts are available in the public project repository.
+      </p>
+
+      <ul>
+
+        <li>
+          <strong>GitHub repository:</strong>
+          <a
+            href="https://github.com/eminamandzukic/FlyRank_starter"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            github.com/eminamandzukic/FlyRank_starter
+          </a>
+        </li>
+
+        <li>
+          <strong>Capstone notebook:</strong>
+          <a
+            href="https://github.com/eminamandzukic/FlyRank_starter/blob/main/work/notebooks/capstone.ipynb"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            work/notebooks/capstone.ipynb
+          </a>
+        </li>
+
+      </ul>
+
+      <p>
+        The notebook documents the research question, data filters, target
+        definition, feature set, baseline, model comparison, validation
+        design, leakage controls, limitations, recommendations, and paper
+        artifacts.
+      </p>
+
+      <p>
+        Access to the underlying internship warehouse requires appropriate
+        authorization. Authentication credentials are requested at runtime
+        and are not stored in the notebook or this webpage.
+      </p>
+
+      <p>
+        Randomized model components use a fixed random seed where
+        applicable. The primary conclusions are based on the time-aware
+        April 2026 to May 2026 validation split reported above.
+      </p>
+    </section>
+
+
+    <!-- =====================================================
+         8. ACKNOWLEDGMENTS
+    ====================================================== -->
+
+    <section id="acknowledgments">
+      <h2>8. Acknowledgments &amp; Data Credit</h2>
+
+      <p>
+        Built on the
+        <a
+          href="https://flyrank.ai/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          FlyRank ML Internship dataset
+        </a>.
+      </p>
+
+      <p>
+        The dataset was used exclusively in pseudonymized form for this
+        analysis. Public outputs intentionally exclude client names, page
+        URLs, private search queries, and other identifying information.
+      </p>
+    </section>
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer>
+      <p>
+        Emina Mandzukic · FlyRank ML Internship Capstone
+      </p>
+
+      <p>
+        This research artifact reports predictive associations and is
+        intended for decision-support purposes only.
+      </p>
+    </footer>
+
+  </main>
+
+</body>
+</html>
